@@ -1,18 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './user.entity';
 
 @Injectable()
 export class AppService {
 
-  constructor( @Inject('MAIL_SERVICE') private clientMail:ClientProxy){
+  constructor(
+  @Inject('MAIL_SERVICE') private readonly clientMail:ClientProxy,
+  @InjectRepository(User) private readonly userRepository: Repository<User>,
 
-  }
-  getHello(): string {
-    return 'Hello Soy Brian Isaac!';
-  }
+) {}
 
-  newUser(user:any){
-    this.clientMail.emit('new_mail', user)
-    return 'Listo'
+  async newUser(body: { name: string; email: string }) {
+    const user = this.userRepository.create(body);
+    const savedUser = await this.userRepository.save(user);
+
+    this.clientMail.emit('new_email', user);
+    return savedUser;
+
   }
 }

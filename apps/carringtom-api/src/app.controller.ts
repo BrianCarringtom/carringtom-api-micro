@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 /**
  * Esta esa la APP PRINCIPAL
@@ -7,8 +7,17 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post()//
-  newUser(@Body() body:any): string {
-    return this.appService.newUser(body)
+  @Post('user')
+  public async newUser(@Body() body: { name: string; email: string }) {
+
+    const carrigmtonUser = {
+      name: 'Carrigmton',
+      email: 'carrigmton@gmail.com'
+
+    };
+
+    body = (Object.keys(body).length) ? body : carrigmtonUser;
+
+    return this.appService.newUser(body);
   }
 }
