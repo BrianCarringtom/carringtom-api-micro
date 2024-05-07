@@ -6,19 +6,29 @@ import { User } from './user.entity';
 
 @Injectable()
 export class AppService {
-
   constructor(
-  @Inject('MAIL_SERVICE') private readonly clientMail:ClientProxy,
-  @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @Inject('MAIL_SERVICE') private readonly _mailClient: ClientProxy,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+  ) {}
 
-) {}
+  async User(body: { name: string; email: string }) {
+    // Verificar si ya existe un usuario con el mismo correo electrónico
+    const existingUser = await this.userRepository.findOne({ where: { email: body.email } });
 
-  async newUser(body: { name: string; email: string }) {
-    const user = this.userRepository.create(body);
-    const savedUser = await this.userRepository.save(user);
+    // Si existe un usuario con el mismo correo electrónico, devolver un mensaje indicando que ya existe
+    if (existingUser) {
+      throw new Error('El usuario ya existe en la base de datos.');
+    }
 
-    this.clientMail.emit('new_email', user);
+
+
+    // Insertar el usuario en la base de datos
+    const User = this.userRepository.create(body);
+    const savedUser = await this.userRepository.save(User);
+
+    // Emitir el evento "new_email" al servicio
+    this._mailClient.emit('new_email', savedUser);
+
     return savedUser;
-
   }
 }

@@ -7,8 +7,9 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  
   @Post('user')
-  public async newUser(@Body() body: { name: string; email: string }) {
+  public async User(@Body() body: { name: string; email: string }) {
 
     const carrigmtonUser = {
       name: 'Carrigmton',
@@ -18,6 +19,6 @@ export class AppController {
 
     body = (Object.keys(body).length) ? body : carrigmtonUser;
 
-    return this.appService.newUser(body);
+    return this.appService.User(body);
   }
 }
